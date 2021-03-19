@@ -1,5 +1,6 @@
 package org.d3if4026.hitungbmi.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.*
@@ -21,6 +22,7 @@ class HitungFragment : Fragment() {
     ): View? {
         binding = FragmentHitungBinding.inflate(layoutInflater, container, false)
         binding.button.setOnClickListener{hitungBmi()}
+        binding.shareButton.setOnClickListener{shareData()}
         binding.saranButton.setOnClickListener{view: View ->
             view.findNavController().navigate(
                         HitungFragmentDirections.actionHitungFragmentToSaranFragment(kategoriBmi)
@@ -55,7 +57,7 @@ class HitungFragment : Fragment() {
 
         binding.bmiTextView.text = getString(R.string.bmi_x, bmi)
         binding.kategoriTextView.text = getString(R.string.kategori_x, kategori)
-        binding.saranButton.visibility = View.VISIBLE
+        binding.buttonGroup.visibility = View.VISIBLE
     }
 
     private fun getKategori(bmi: Float, isMale: Boolean): String {
@@ -90,5 +92,25 @@ class HitungFragment : Fragment() {
             return true
         }
         return super.onOptionsItemSelected(item)
+    }
+    private fun shareData() {
+        val selectedId = binding.radioGroup.checkedRadioButtonId
+        val gender = if (selectedId == R.id.priaRadioButton)
+            getString(R.string.pria)
+        else
+            getString(R.string.wanita)
+        val message = getString(R.string.bagikan_template,
+            binding.beratEditText.text,
+            binding.tinggiEditText.text,
+            gender,
+            binding.bmiTextView.text,
+            binding.kategoriTextView.text
+        )
+        val shareIntent = Intent(Intent.ACTION_SEND)
+        shareIntent.setType("text/plain").putExtra(Intent.EXTRA_TEXT, message)
+        if (shareIntent.resolveActivity(
+                requireActivity().packageManager) != null) {
+            startActivity(shareIntent)
+        }
     }
 }
